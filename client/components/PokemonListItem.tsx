@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import styles from './PokemonListItem.module.css'
-import { deletePokemon } from '../apis/pokemon.ts'
+import { deletePokemon, renamePokemon } from '../apis/pokemon.ts'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 interface Props {
@@ -15,10 +15,10 @@ export default function PokemonListItem({ id, name }: Props) {
   const handleDeleteClick = () => {
     // TODO: submit the form to delete the pokemon
     console.log('deleting', id)
-    pokemonMutation.mutate({id})
+    pokemonMutationDelete.mutate({id})
   }
 
-  const pokemonMutation = useMutation(deletePokemon, {
+  const pokemonMutationDelete = useMutation(deletePokemon, {
     onSuccess: async () => {
       queryClient.invalidateQueries(['pokemon'])
     }
@@ -26,12 +26,20 @@ export default function PokemonListItem({ id, name }: Props) {
 
   const handleEditSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-
+    
     // TODO: submit the form to change the name
     console.log('submitting', text)
+    pokemonMutationRename.mutate({id, newName: text})
 
     setEditing(false)
   }
+  
+  const pokemonMutationRename = useMutation(renamePokemon, {
+    onSuccess: async () => {
+      queryClient.invalidateQueries(['pokemon'])
+    }
+  })
+
 
   const handleStopEditingClick = () => {
     setEditing(false)
